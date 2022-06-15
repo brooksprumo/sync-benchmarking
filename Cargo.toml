@@ -1,0 +1,17 @@
+[package]
+name = "sync-benchmarking"
+version = "0.1.0"
+edition = "2021"
+description = "Benchmarking synchronization primitives"
+authors = ["Brooks Prumo <brooks@prumo.org>"]
+license = "GPL-3.0-only"
+
+[dependencies]
+
+[dev-dependencies]
+proptest = "1"
+criterion = "0.3"
+
+[[bench]]
+name = "sync_benchmark"
+harness = false
