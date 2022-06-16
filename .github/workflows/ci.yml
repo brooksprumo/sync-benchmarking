@@ -69,7 +69,7 @@ jobs:
           args: --tests --benches -- -D warnings
 
   miri:
-    name: "Miri"
+    name: Miri
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -79,5 +79,4 @@ jobs:
           rustup override set nightly
           cargo miri setup
       - name: Test with Miri
-        env: MIRIFLAGS=-Ziri-disable-isolation
         run: cargo miri test
