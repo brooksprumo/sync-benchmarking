@@ -1,5 +1,8 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 use sync_benchmarking::*;
 
 // bprumo TODO: things to benchmark
@@ -68,19 +71,26 @@ fn bench_std_mutex<T: 'static + Default + Counter + Send>(num_threads: usize) {
 
     // bprumo TODO: don't want to test the time it takes to spawn the threads...
 
-    (0..num_threads)
+    let go = Arc::new(AtomicBool::new(false));
+    let threads: Vec<_> = (0..num_threads)
         .into_iter()
         .map(|_| {
             let t = Arc::clone(&t);
+            let go = Arc::clone(&go);
             std::thread::spawn(move || {
+                while !go.load(Ordering::Acquire) {}
                 for _ in 0..amount_of_work_per_thread {
                     let mut t = t.lock().unwrap();
                     *t.counter_mut() += 1;
                 }
             })
         })
-        .for_each(|thread| thread.join().unwrap());
+        .collect();
+    go.store(true, Ordering::Release);
 
+    threads
+        .into_iter()
+        .for_each(|thread| thread.join().unwrap());
     assert_eq!(t.lock().unwrap().counter() as usize, amount_of_work);
 }
 
@@ -91,19 +101,26 @@ fn bench_parking_lot_mutex<T: 'static + Default + Counter + Send>(num_threads: u
 
     // bprumo TODO: don't want to test the time it takes to spawn the threads...
 
-    (0..num_threads)
+    let go = Arc::new(AtomicBool::new(false));
+    let threads: Vec<_> = (0..num_threads)
         .into_iter()
         .map(|_| {
             let t = Arc::clone(&t);
+            let go = Arc::clone(&go);
             std::thread::spawn(move || {
+                while !go.load(Ordering::Acquire) {}
                 for _ in 0..amount_of_work_per_thread {
                     let mut t = t.lock();
                     *t.counter_mut() += 1;
                 }
             })
         })
-        .for_each(|thread| thread.join().unwrap());
+        .collect();
+    go.store(true, Ordering::Release);
 
+    threads
+        .into_iter()
+        .for_each(|thread| thread.join().unwrap());
     assert_eq!(t.lock().counter() as usize, amount_of_work);
 }
 
@@ -114,19 +131,26 @@ fn bench_std_rwlock<T: 'static + Default + Counter + Send + Sync>(num_threads: u
 
     // bprumo TODO: don't want to test the time it takes to spawn the threads...
 
-    (0..num_threads)
+    let go = Arc::new(AtomicBool::new(false));
+    let threads: Vec<_> = (0..num_threads)
         .into_iter()
         .map(|_| {
             let t = Arc::clone(&t);
+            let go = Arc::clone(&go);
             std::thread::spawn(move || {
+                while !go.load(Ordering::Acquire) {}
                 for _ in 0..amount_of_work_per_thread {
                     let mut t = t.write().unwrap();
                     *t.counter_mut() += 1;
                 }
             })
         })
-        .for_each(|thread| thread.join().unwrap());
+        .collect();
+    go.store(true, Ordering::Release);
 
+    threads
+        .into_iter()
+        .for_each(|thread| thread.join().unwrap());
     assert_eq!(t.read().unwrap().counter() as usize, amount_of_work);
 }
 
@@ -137,19 +161,26 @@ fn bench_parking_lot_rwlock<T: 'static + Default + Counter + Send + Sync>(num_th
 
     // bprumo TODO: don't want to test the time it takes to spawn the threads...
 
-    (0..num_threads)
+    let go = Arc::new(AtomicBool::new(false));
+    let threads: Vec<_> = (0..num_threads)
         .into_iter()
         .map(|_| {
             let t = Arc::clone(&t);
+            let go = Arc::clone(&go);
             std::thread::spawn(move || {
+                while !go.load(Ordering::Acquire) {}
                 for _ in 0..amount_of_work_per_thread {
                     let mut t = t.write();
                     *t.counter_mut() += 1;
                 }
             })
         })
-        .for_each(|thread| thread.join().unwrap());
+        .collect();
+    go.store(true, Ordering::Release);
 
+    threads
+        .into_iter()
+        .for_each(|thread| thread.join().unwrap());
     assert_eq!(t.read().counter() as usize, amount_of_work);
 }
 
