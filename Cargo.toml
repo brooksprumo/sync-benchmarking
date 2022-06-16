@@ -7,6 +7,7 @@ authors = ["Brooks Prumo <brooks@prumo.org>"]
 license = "GPL-3.0-only"
 
 [dependencies]
+parking_lot = "0.12"
 
 [dev-dependencies]
 proptest = "1"
