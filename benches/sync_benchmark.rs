@@ -68,7 +68,7 @@ fn bench_std_mutex<T: 'static + Default + Counter + Send>(num_threads: usize) {
 
     // bprumo TODO: don't want to test the time it takes to spawn the threads...
 
-    let threads: Vec<_> = (0..num_threads)
+    (0..num_threads)
         .into_iter()
         .map(|_| {
             let t = Arc::clone(&t);
@@ -79,11 +79,8 @@ fn bench_std_mutex<T: 'static + Default + Counter + Send>(num_threads: usize) {
                 }
             })
         })
-        .collect();
-
-    threads
-        .into_iter()
         .for_each(|thread| thread.join().unwrap());
+
     assert_eq!(t.lock().unwrap().counter() as usize, amount_of_work);
 }
 
@@ -94,7 +91,7 @@ fn bench_parking_lot_mutex<T: 'static + Default + Counter + Send>(num_threads: u
 
     // bprumo TODO: don't want to test the time it takes to spawn the threads...
 
-    let threads: Vec<_> = (0..num_threads)
+    (0..num_threads)
         .into_iter()
         .map(|_| {
             let t = Arc::clone(&t);
@@ -105,11 +102,8 @@ fn bench_parking_lot_mutex<T: 'static + Default + Counter + Send>(num_threads: u
                 }
             })
         })
-        .collect();
-
-    threads
-        .into_iter()
         .for_each(|thread| thread.join().unwrap());
+
     assert_eq!(t.lock().counter() as usize, amount_of_work);
 }
 
@@ -120,7 +114,7 @@ fn bench_std_rwlock<T: 'static + Default + Counter + Send + Sync>(num_threads: u
 
     // bprumo TODO: don't want to test the time it takes to spawn the threads...
 
-    let threads: Vec<_> = (0..num_threads)
+    (0..num_threads)
         .into_iter()
         .map(|_| {
             let t = Arc::clone(&t);
@@ -131,11 +125,8 @@ fn bench_std_rwlock<T: 'static + Default + Counter + Send + Sync>(num_threads: u
                 }
             })
         })
-        .collect();
-
-    threads
-        .into_iter()
         .for_each(|thread| thread.join().unwrap());
+
     assert_eq!(t.read().unwrap().counter() as usize, amount_of_work);
 }
 
@@ -146,7 +137,7 @@ fn bench_parking_lot_rwlock<T: 'static + Default + Counter + Send + Sync>(num_th
 
     // bprumo TODO: don't want to test the time it takes to spawn the threads...
 
-    let threads: Vec<_> = (0..num_threads)
+    (0..num_threads)
         .into_iter()
         .map(|_| {
             let t = Arc::clone(&t);
@@ -157,11 +148,8 @@ fn bench_parking_lot_rwlock<T: 'static + Default + Counter + Send + Sync>(num_th
                 }
             })
         })
-        .collect();
-
-    threads
-        .into_iter()
         .for_each(|thread| thread.join().unwrap());
+
     assert_eq!(t.read().counter() as usize, amount_of_work);
 }
 
